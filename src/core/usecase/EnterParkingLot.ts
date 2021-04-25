@@ -11,7 +11,12 @@ export default class EnterParkingLot {
 
     async execute(code: string, plate: string, date: Date) {
         const parkingLot = await this.parkingLotRepository.getParkingLot(code);
+        if (parkingLot === undefined) {
+            throw new TypeError('The value was promised to always be there!');
+          }
         const parkedCar = new ParkedCar(code, plate, date);
+        if (!parkingLot.isOpen(parkedCar.date)) throw new Error('The parking lot is closed');
+        await this.parkingLotRepository.saveParkedCar(parkedCar.code, parkedCar.plate, parkedCar.date);
         return parkingLot;
     }
 }
